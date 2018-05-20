@@ -1,4 +1,5 @@
 import operator
+import os
 import re
 from functools import reduce
 
@@ -27,19 +28,26 @@ class YamoleParser():
             self.data = yaml.load(file)
             self.max_depth = max_depth
 
-            self.data = self.expand(self.data)
+            self.data_dir = os.path.abspath(os.path.dirname(path))
+            self.data = self.expand(self.data, self.data)
 
-    def expand(self, obj, depth=0):
+    def expand(self, obj, parent, parent_dir=None, depth=0):
         """Recursively expand an object, considering any potential JSON
         references it may contain.
 
         See https://tools.ietf.org/html/draft-pbryan-zyp-json-ref-03 for a
-        brief description on what a JSON reference is.
+        brief description of what a JSON reference is.
 
         Args:
             obj: The object to expand, which may contain JSON references.
+            parent: The top parent (i.e. root) for the object expand() has
+                been called on.
+            parent_dir: The directory where the file containing "parent" is
+                located.
             depth: The current object nesting level.
         """
+        parent_dir = parent_dir or self.data_dir
+
         if depth > self.max_depth:
             raise RuntimeError('The object has a depth higher than the '
                                'current limit ({}). Maybe the document has '
@@ -55,28 +63,37 @@ class YamoleParser():
                     uri, route = self.REF_REGEX.match(obj['$ref']).groups()
                     route = route.lstrip('#').strip('/')
 
+                    # Let's get ref_src, which is the object where the
+                    # reference's path takes effect
                     if uri:
-                        # Fetch the local file if an URI was specified
+                        # Normalize the URI and set the new parent directory
+                        if os.path.isabs(uri):
+                            new_parent_dir = os.path.dirname(uri)
+                        else:
+                            uri = os.path.join(parent_dir, uri)
+                            new_parent_dir = os.path.dirname(uri)
+
                         with open(uri, 'r') as file:
                             ref_src = yaml.load(file)
                     else:
-                        # TODO: This isn't 100% right. The reference's source
-                        # can be some other file (e.g. a local reference
-                        # inside an external file)
-                        ref_src = self.data
+                        ref_src = parent
+                        new_parent_dir = parent_dir
 
                     # Index the ref_src dict with the path
                     ref = reduce(operator.getitem, route.split('/'), ref_src)
 
                     # Replace the $ref key with the reference's contents
                     del obj['$ref']
-                    obj.update(self.expand(ref, depth + 1))
+
+                    obj.update(self.expand(ref, ref_src, new_parent_dir,
+                                           depth + 1))
 
                 # This key isn't a reference, but it may contain one somewhere
-                self.expand(value, depth + 1)
+                self.expand(value, parent, parent_dir, depth + 1)
         elif isinstance(obj, list):
             # If this is a list, expand each item one by one
-            obj = [self.expand(item, depth + 1) for item in obj]
+            obj = [self.expand(item, parent, parent_dir, depth + 1)
+                   for item in obj]
 
         # Return the expanded object to end the recursion
         return obj
