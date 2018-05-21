@@ -17,3 +17,6 @@ with open(os.path.join(TEST_DIR, 'expected.yaml')) as file:
     expected = yaml.load(file)
 
 assert(actual == expected)
+
+# We can't test the .dumps() method as there's no guarantee the keys in the
+# output will always be sorted the same way.
