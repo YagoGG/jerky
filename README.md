@@ -1,5 +1,4 @@
-yamole
-======
+# yamole [![Build Status](https://travis-ci.org/YagoGG/yamole.svg?branch=master)](https://travis-ci.org/YagoGG/yamole)
 
 Dig through the JSON references inside a YAML file, the kind of situation
 you may run into when parsing [OpenAPI](https://www.openapis.org/) files.
@@ -7,13 +6,13 @@ you may run into when parsing [OpenAPI](https://www.openapis.org/) files.
 The result is a single, big YAML file with all the references resolved (i.e.
 with their contents replaced in the corresponding places).
 
-# Installation
+## Installation
 
 yamole is available as a PyPI module, so you can install it using `pip`:
 
     $ pip install yamole
 
-# Usage
+## Usage
 
 Using yamole is pretty straightforward. The parser is available through the
 `YamoleParser` class:
@@ -24,7 +23,7 @@ parser = YamoleParser('input_file.yaml')
 output_str = parser.dumps()
 ```
 
-# Testing
+## Testing
 
 To test that yamole works properly, you can run:
 
