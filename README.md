@@ -1,4 +1,7 @@
-# yamole [![Build Status](https://travis-ci.org/YagoGG/yamole.svg?branch=master)](https://travis-ci.org/YagoGG/yamole)
+# yamole
+
+[![Build Status](https://travis-ci.org/YagoGG/yamole.svg?branch=master)](https://travis-ci.org/YagoGG/yamole)
+[![PyPI package](https://img.shields.io/pypi/v/yamole.svg)](https://pypi.org/project/yamole)
 
 Dig through the JSON references inside a YAML file, the kind of situation
 you may run into when parsing [OpenAPI](https://www.openapis.org/) files.
@@ -18,7 +21,8 @@ Using yamole is pretty straightforward. The parser is available through the
 `YamoleParser` class:
 
 ```python
-parser = YamoleParser('input_file.yaml')
+with open('input_file.yaml') as file:
+    parser = YamoleParser(file)
 
 output_str = parser.dumps()
 
