@@ -9,7 +9,7 @@ with open(readme_path, encoding='utf-8') as file:
 
 setup(
     name='yamole',
-    version='1.1.0',
+    version='2.0.0',
     description='A YAML parser that resolves JSON references',
     long_description=long_description,
     long_description_content_type='text/markdown',
