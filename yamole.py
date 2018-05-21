@@ -20,6 +20,9 @@ class YamoleParser():
         max_depth: The maximum nesting level allowed before aborting
             execution. This limit is set to avoid infinite recursion when
             resolving circular references.
+
+    Attributes:
+        data: The dictionary with the parsed file's structure.
     """
     REF_REGEX = re.compile(r'^([^#]*)(#.*)?$')
 

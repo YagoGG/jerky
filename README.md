@@ -21,6 +21,8 @@ Using yamole is pretty straightforward. The parser is available through the
 parser = YamoleParser('input_file.yaml')
 
 output_str = parser.dumps()
+
+parser.data['some-key']  # The dict with the parsed file's structure
 ```
 
 ## Testing
