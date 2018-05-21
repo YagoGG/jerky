@@ -16,20 +16,19 @@ class YamoleParser():
         won't work.
 
     Args:
-        path: The path where the source YAML file can be found.
+        file: The file object of the YAML document to parse.
         max_depth: The maximum nesting level allowed before aborting
             execution. This limit is set to avoid infinite recursion when
             resolving circular references.
     """
     REF_REGEX = re.compile(r'^([^#]*)(#.*)?$')
 
-    def __init__(self, path, max_depth=1000):
-        with open(path, 'r') as file:
-            self.data = yaml.load(file)
-            self.max_depth = max_depth
+    def __init__(self, file, max_depth=1000):
+        self.data = yaml.load(file)
+        self.max_depth = max_depth
 
-            self.data_dir = os.path.abspath(os.path.dirname(path))
-            self.data = self.expand(self.data, self.data)
+        self.data_dir = os.path.abspath(os.path.dirname(file.name))
+        self.data = self.expand(self.data, self.data)
 
     def expand(self, obj, parent, parent_dir=None, depth=0):
         """Recursively expand an object, considering any potential JSON
