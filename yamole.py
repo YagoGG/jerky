@@ -17,6 +17,9 @@ class YamoleParser():
 
     Args:
         file: The file object of the YAML document to parse.
+        merge_allof: Whether the "allOf" arrays in the document should be
+            replaced with with a single object that combines the items in the
+            array (see "allOf" in the OpenAPI specification).
         max_depth: The maximum nesting level allowed before aborting
             execution. This limit is set to avoid infinite recursion when
             resolving circular references.
@@ -26,12 +29,42 @@ class YamoleParser():
     """
     REF_REGEX = re.compile(r'^([^#]*)(#.*)?$')
 
-    def __init__(self, file, max_depth=1000):
+    def __init__(self, file, merge_allof=True, max_depth=1000):
         self.data = yaml.load(file)
+        self.merge_allof = merge_allof
         self.max_depth = max_depth
 
         self.data_dir = os.path.abspath(os.path.dirname(file.name))
         self.data = self.expand(self.data, self.data)
+
+    def merge(self, a, b, path=None):
+        """Merge a dict into another. Both may have nested dicts in them.
+
+        The destination dict is modified.
+
+        Args:
+            a: Destination dict, which will contain all the keys.
+            b: Source dict, which will be merged into "a".
+
+        Returns
+            The destination dict, now including the contents of "b".
+        """
+        if path is None:
+            path = []
+        for key in b:
+            if key in a:
+                if isinstance(a[key], dict) and isinstance(b[key], dict):
+                    self.merge(a[key], b[key], path + [str(key)])
+                elif isinstance(a[key], list) and isinstance(b[key], list):
+                    a[key] += b[key]
+                elif a[key] == b[key]:
+                    pass
+                else:
+                    raise RuntimeError('Conflict at {}'
+                                       .format('.'.join(path + [str(key)])))
+            else:
+                a[key] = b[key]
+        return a
 
     def expand(self, obj, parent, parent_dir=None, depth=0):
         """Recursively expand an object, considering any potential JSON
@@ -89,9 +122,18 @@ class YamoleParser():
 
                     obj.update(self.expand(ref, ref_src, new_parent_dir,
                                            depth + 1))
-
-                # This key isn't a reference, but it may contain one somewhere
-                self.expand(value, parent, parent_dir, depth + 1)
+                elif key == 'allOf' and self.merge_allof:
+                    copy = dict(obj)
+                    del copy['allOf']
+                    for item in obj['allOf']:
+                        self.merge(copy, item)
+                        copy = self.expand(copy, parent, parent_dir,
+                                           depth + 1)
+                    obj = copy
+                else:
+                    # This key isn't a reference, but it may contain one
+                    obj[key] = self.expand(value, parent, parent_dir,
+                                           depth + 1)
         elif isinstance(obj, list):
             # If this is a list, expand each item one by one
             obj = [self.expand(item, parent, parent_dir, depth + 1)

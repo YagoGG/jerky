@@ -35,8 +35,8 @@ paths:
                 type: array
                 items:
                   required:
-                  - id
                   - name
+                  - id
                   properties:
                     id:
                       type: integer

@@ -9,6 +9,11 @@ you may run into when parsing [OpenAPI](https://www.openapis.org/) files.
 The result is a single, big YAML file with all the references resolved (i.e.
 with their contents replaced in the corresponding places).
 
+yamole also includes small features that help you parse OpenAPI files, like
+combining all the elements in an
+[`allOf`](https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/#allof)
+key into a single object.
+
 ## Installation
 
 yamole is available as a PyPI module, so you can install it using `pip`:
