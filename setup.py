@@ -9,7 +9,7 @@ with open(readme_path, encoding='utf-8') as file:
 
 setup(
     name='yamole',
-    version='2.1.0',
+    version='2.1.1',
     description='A YAML parser that resolves JSON references',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -31,5 +31,6 @@ setup(
         'Source': 'https://github.com/YagoGG/yamole/',
         'Tracker': 'https://github.com/YagoGG/yamole/issues',
     },
-    py_modules=['yamole']
+    py_modules=['yamole'],
+    install_requires=['pyyaml']
 )
