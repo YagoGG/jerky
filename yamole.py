@@ -90,7 +90,7 @@ class YamoleParser():
                                .format(self.max_depth))
 
         if isinstance(obj, dict):
-            for key, value in list(obj.items()):
+            for key, value in sorted(obj.items()):
                 if key == '$ref':
                     # Parse the reference's format, which should look
                     # something like:
