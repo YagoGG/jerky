@@ -1,6 +1,7 @@
 import operator
 import os
 import re
+from copy import deepcopy
 from functools import reduce
 
 import yaml
@@ -123,13 +124,13 @@ class YamoleParser():
                     obj.update(self.expand(ref, ref_src, new_parent_dir,
                                            depth + 1))
                 elif key == 'allOf' and self.merge_allof:
-                    copy = dict(obj)
+                    copy = deepcopy(obj)
                     del copy['allOf']
                     for item in obj['allOf']:
                         self.merge(copy, item)
                         copy = self.expand(copy, parent, parent_dir,
                                            depth + 1)
-                    obj = copy
+                    obj = deepcopy(copy)
                 else:
                     # This key isn't a reference, but it may contain one
                     obj[key] = self.expand(value, parent, parent_dir,
