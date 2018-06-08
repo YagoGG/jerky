@@ -130,15 +130,16 @@ class YamoleParser():
                         self.merge(copy, item)
                         copy = self.expand(copy, parent, parent_dir,
                                            depth + 1)
-                    obj = deepcopy(copy)
+                    obj = copy
                 else:
                     # This key isn't a reference, but it may contain one
                     obj[key] = self.expand(value, parent, parent_dir,
                                            depth + 1)
         elif isinstance(obj, list):
             # If this is a list, expand each item one by one
+            copy = deepcopy(obj)
             obj = [self.expand(item, parent, parent_dir, depth + 1)
-                   for item in obj]
+                   for item in copy]
 
         # Return the expanded object to end the recursion
         return obj
