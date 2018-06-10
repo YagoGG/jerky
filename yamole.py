@@ -18,9 +18,10 @@ class YamoleParser():
 
     Args:
         file: The file object of the YAML document to parse.
-        merge_allof: Whether the "allOf" arrays in the document should be
-            replaced with with a single object that combines the items in the
-            array (see "allOf" in the OpenAPI specification).
+        openapi_mode: Enable specific parsing caracteristics, like replacing
+            "allOf" arrays with with a single object that combines the items
+            in the array (see "allOf" in the OpenAPI specification), and
+            avoiding inheritance in the schemas' examples.
         max_depth: The maximum nesting level allowed before aborting
             execution. This limit is set to avoid infinite recursion when
             resolving circular references.
@@ -30,9 +31,12 @@ class YamoleParser():
     """
     REF_REGEX = re.compile(r'^([^#]*)(#.*)?$')
 
-    def __init__(self, file, merge_allof=True, max_depth=1000):
+    def __init__(self, file, openapi_mode=True, merge_allof=None,
+                 max_depth=1000):
         self.data = yaml.load(file)
-        self.merge_allof = merge_allof
+        # merge_allof is a deprecated flag from when "openapi_mode" only did
+        # that. Keeping it to keep retrocompatibility.
+        self.openapi_mode = merge_allof or openapi_mode
         self.max_depth = max_depth
 
         self.data_dir = os.path.abspath(os.path.dirname(file.name))
@@ -55,7 +59,10 @@ class YamoleParser():
         for key in b:
             if key in a:
                 if isinstance(a[key], dict) and isinstance(b[key], dict):
-                    self.merge(a[key], b[key], path + [str(key)])
+                    if key == 'example' and self.openapi_mode:
+                        a[key] = b[key]
+                    else:
+                        self.merge(a[key], b[key], path + [str(key)])
                 elif isinstance(a[key], list) and isinstance(b[key], list):
                     a[key] += b[key]
                 elif a[key] == b[key]:
@@ -123,7 +130,7 @@ class YamoleParser():
 
                     obj.update(self.expand(ref, ref_src, new_parent_dir,
                                            depth + 1))
-                elif key == 'allOf' and self.merge_allof:
+                elif key == 'allOf' and self.openapi_mode:
                     copy = deepcopy(obj)
                     del copy['allOf']
                     for item in obj['allOf']:
