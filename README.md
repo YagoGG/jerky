@@ -28,7 +28,8 @@ Using yamole is pretty straightforward. The parser is available through the
 ```python
 with open('input_file.yaml') as file:
     parser = YamoleParser(file,
-        merge_allof=False,  # Combine allOfs into single dicts (def: True)
+        merge_allof=False,  # Combine allOfs into single dicts and disable
+                            # inheritance for "example" keys (def: True)
         max_depth=314)  # Allow a maximum of 314 nesting levels (def: 1000)
 
 output_str = parser.dumps()
