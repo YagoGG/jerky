@@ -149,7 +149,7 @@ class YamoleParser():
                    for item in copy]
 
         # Return the expanded object to end the recursion
-        return obj
+        return deepcopy(obj)
 
     def dumps(self, no_alias=True, full_expansion=True):
         """Dump the parsed object as a YAML-compliant string, using a
