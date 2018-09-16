@@ -38,6 +38,9 @@ class YamoleParser():
         # that. Keeping it to keep retrocompatibility.
         self.openapi_mode = merge_allof or openapi_mode
         self.max_depth = max_depth
+        # This is a dict containing all the previously parsed files. It acts as
+        # a cache, to prevent loading and parsing the same file multiple times.
+        self.cache = {}
 
         self.data_dir = os.path.abspath(os.path.dirname(file.name))
         self.data = self.expand(self.data, self.data)
@@ -116,8 +119,12 @@ class YamoleParser():
                             uri = os.path.join(parent_dir, uri)
                             new_parent_dir = os.path.dirname(uri)
 
-                        with open(uri, 'r') as file:
-                            ref_src = yaml.load(file)
+                        if uri in self.cache:
+                            ref_src = self.cache[uri]
+                        else:
+                            with open(uri, 'r') as file:
+                                ref_src = yaml.load(file)
+                            self.cache[uri] = ref_src
                     else:
                         ref_src = parent
                         new_parent_dir = parent_dir
