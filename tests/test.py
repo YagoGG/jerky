@@ -15,7 +15,7 @@ with open(os.path.join(TEST_DIR, 'source.yaml')) as file:
     actual = parser.data
 
 with open(os.path.join(TEST_DIR, 'expected.yaml')) as file:
-    expected = yaml.load(file)
+    expected = yaml.safe_load(file)
 
 assert(actual == expected)
 

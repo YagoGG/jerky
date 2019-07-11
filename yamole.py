@@ -33,7 +33,7 @@ class YamoleParser():
 
     def __init__(self, file, openapi_mode=True, merge_allof=None,
                  max_depth=1000):
-        self.data = yaml.load(file)
+        self.data = yaml.safe_load(file)
         # merge_allof is a deprecated flag from when "openapi_mode" only did
         # that. Keeping it to keep retrocompatibility.
         self.openapi_mode = merge_allof or openapi_mode
@@ -123,7 +123,7 @@ class YamoleParser():
                             ref_src = self.cache[uri]
                         else:
                             with open(uri, 'r') as file:
-                                ref_src = yaml.load(file)
+                                ref_src = yaml.safe_load(file)
                             self.cache[uri] = ref_src
                     else:
                         ref_src = parent
