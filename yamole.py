@@ -141,6 +141,8 @@ class YamoleParser():
                     copy = deepcopy(obj)
                     del copy['allOf']
                     for item in obj['allOf']:
+                        if(isinstance(item,dict)) and '$ref' in item:
+                            item = self.expand(item, parent, parent_dir)
                         self.merge(copy, item)
                         copy = self.expand(copy, parent, parent_dir,
                                            depth + 1)

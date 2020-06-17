@@ -45,6 +45,22 @@ paths:
                       type: string
                     tag:
                       type: string
+        '400':
+          description: Unexpected error with result
+          content:
+            application/json:
+              schema:
+                required:
+                  - code
+                  - message
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                  message:
+                    type: string
+                  result:
+                    type: string
         default:
           description: unexpected error
           content:
@@ -70,4 +86,8 @@ components:
           type: integer
           format: int32
         message:
+          type: string
+    ErrorCode:
+      properties:
+        result:
           type: string
